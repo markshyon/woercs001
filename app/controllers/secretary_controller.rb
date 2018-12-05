@@ -3,8 +3,12 @@ class SecretaryController < ApplicationController
     protect_from_forgery with: :null_session
 
     def webhook
+
+        # 學說話
+        reply_text = learn(received_text)
+
         # 設定回覆訊息
-        reply_text = keyword_reply(received_text)
+        reply_text = keyword_reply(received_text) if reply_text.nil?
 
         # 傳送訊息到Line
         response = reply_to_line(reply_text)
@@ -19,16 +23,27 @@ class SecretaryController < ApplicationController
         message['text'] unless message.nil?
     end
 
+    # 學說話區塊
+    def learn(received_text)
+        # 如果開頭不是 老賈學說話; 就跳出
+        return nil unless received_text[0..5] == '老賈學說話;'
+
+        received_text = received_text[6..-1]
+        semicolon_index = received_text.index(';')
+
+        # 找不到分號就跳出
+        return nil if semicolon_index.nil?
+
+        keyword = received_text[0..semicolon_index-1]
+        message = received_text[semicolon_index+1..-1]
+
+        KeywordMapping.create(keyword: keyword, message: message)
+        '報告~是!'
+    end
+
     # 關鍵字回覆
     def keyword_reply(received_text)
-        # 學習紀錄表
-        keyword_mapping = {
-            'QQ' => '123',
-            'ABC' => '456'
-        }
-
-        # 查表
-        keyword_mapping[received_text]
+        KeywordMapping.where(keyword: received_text).last&.message
     end
 
     # 傳送訊息到Line
