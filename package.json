@@ -1,0 +1,7 @@
+{
+  "name": "woercs001",
+  "private": true,
+  "dependencies": {
+    "git": "^0.1.5"
+  }
+}
