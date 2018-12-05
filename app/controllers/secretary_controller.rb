@@ -1,4 +1,6 @@
 class SecretaryController < ApplicationController
+    protect_from_forgery with: :null_session
+
     def eat
         render plain: "吃吃吃"
     end
@@ -33,4 +35,7 @@ class SecretaryController < ApplicationController
         render plain: response
     end
 
+    def webhook
+        head :ok
+    end
 end
