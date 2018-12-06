@@ -18,6 +18,8 @@ group :production do
 end
 # line
 gem 'line-bot-api'
+# 後台login
+gem 'devise'
 # Use Puma as the app server
 gem 'puma', '~> 3.11'
 # Use SCSS for stylesheets
