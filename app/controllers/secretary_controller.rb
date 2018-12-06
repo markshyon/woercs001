@@ -5,10 +5,10 @@ class SecretaryController < ApplicationController
     def webhook
 
         # 學說話
-        reply_text = learn(received_text)
+        reply_text = learn(channel_id, received_text)
 
         # 設定回覆訊息
-        reply_text = keyword_reply(received_text) if reply_text.nil?
+        reply_text = keyword_reply(channel_id, received_text) if reply_text.nil?
 
         # 推齊
         reply_text = echo2(channel_id, received_text) if reply_text.nil?
@@ -62,7 +62,7 @@ class SecretaryController < ApplicationController
     end
 
     # 學說話區塊
-    def learn(received_text)
+    def learn(channel_id, received_text)
         # 如果開頭不是 老賈學說話; 就跳出
         return nil unless received_text[0..5] == '老賈學說話;'
 
@@ -75,12 +75,14 @@ class SecretaryController < ApplicationController
         keyword = received_text[0..semicolon_index-1]
         message = received_text[semicolon_index+1..-1]
 
-        KeywordMapping.create(keyword: keyword, message: message)
+        KeywordMapping.create(channel_id: channel_id, keyword: keyword, message: message)
         '報告~是!'
     end
 
     # 關鍵字回覆
-    def keyword_reply(received_text)
+    def keyword_reply(channel_id, received_text)
+        message = KeywordMapping.where(channel_id: channel_id, keyword: received_text).last&.message
+        return message unless message.nil?
         KeywordMapping.where(keyword: received_text).last&.message
     end
 
